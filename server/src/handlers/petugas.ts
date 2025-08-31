@@ -1,18 +1,27 @@
+import { db } from '../db';
+import { petugasTable } from '../db/schema';
 import { type CreatePetugasInput, type UpdatePetugasInput, type Petugas } from '../schema';
 
 export const createPetugas = async (input: CreatePetugasInput): Promise<Petugas> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is to create a new petugas (officer) record.
-    // Should validate kode uniqueness.
-    return Promise.resolve({
-        id: Math.floor(Math.random() * 1000),
+  try {
+    // Insert petugas record
+    const result = await db.insert(petugasTable)
+      .values({
         kode: input.kode,
         nama: input.nama,
         nik_nip: input.nik_nip,
         alamat: input.alamat,
-        instansi: input.instansi,
-        created_at: new Date()
-    } as Petugas);
+        instansi: input.instansi
+      })
+      .returning()
+      .execute();
+
+    const petugas = result[0];
+    return petugas;
+  } catch (error) {
+    console.error('Petugas creation failed:', error);
+    throw error;
+  }
 };
 
 export const getPetugas = async (): Promise<Petugas[]> => {
